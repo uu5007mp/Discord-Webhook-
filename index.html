@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Discord Webhook 送信フォーム</title>
     <style>
-        body {
+   body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
         }
@@ -98,8 +98,11 @@
         <label for="username">ユーザー名：</label>
         <input type="text" id="username" name="username" placeholder="あなたのユーザー名">
 
-        <label for="avatar-url">アイコンのURL：</label>
+        <label for="avatar-url">アイコンの画像URL：</label>
         <input type="url" id="avatar-url" name="avatar-url" placeholder="アイコンのURL">
+
+        <label for="file-upload">ファイルをアップロード：</label>
+        <input type="file" id="file-upload" name="file-upload">
 
         <label for="message">メッセージ：</label>
         <textarea id="message" name="message" placeholder="メッセージ" required></textarea>
@@ -113,8 +116,40 @@
 
     <script>
         function sendMessage() {
-            // 以前のJavaScriptコード
-            // ...
+            const webhookURL = document.getElementById('webhook-url').value;
+            const username = document.getElementById('username').value;
+            const message = document.getElementById('message').value;
+            const avatarURL = document.getElementById('avatar-url').value;
+            const fileUpload = document.getElementById('file-upload').files[0];
+
+            const payload = new FormData();
+            payload.append('username', username);
+            payload.append('content', message);
+
+            if (avatarURL) {
+                payload.append('avatar_url', avatarURL);
+            }
+
+            if (fileUpload) {
+                payload.append('file', fileUpload);
+            }
+
+            fetch(webhookURL, {
+                method: 'POST',
+                body: payload,
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('メッセージが送信されました。');
+                } else {
+                    response.text().then(errorMessage => {
+                        alert('メッセージの送信に失敗しました。エラー: ' + errorMessage);
+                    });
+                }
+            })
+            .catch(error => {
+                alert('エラーが発生しました: ' + error.message);
+            });
         }
     </script>
 </body>
