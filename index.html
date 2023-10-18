@@ -77,6 +77,18 @@
         input[type="submit"]:hover {
             background-color: #0056b3;
         }
+
+        #github-link {
+            font-size: 12px;
+            color: black; /* リンクのテキストカラーを黒に変更 */
+            text-decoration: none; /* 下線を削除 */
+            margin-top: 10px;
+        }
+
+        #github-url {
+            color: #007bff; /* リンクのテキストカラーを青に変更 */
+            text-decoration: underline; /* 下線を追加 */
+        }
     </style>
 </head>
 <body>
@@ -88,7 +100,7 @@
         <label for="username">ユーザー名：</label>
         <input type="text" id="username" name="username" placeholder="あなたのユーザー名">
 
-        <label for="image-file">画像をアップロード：</label>
+        <label for "image-file">画像をアップロード：</label>
         <input type="file" id="image-file" name="image-file">
 
         <label for="image-url">または画像のURL：</label>
@@ -99,6 +111,10 @@
 
         <input type="button" value="メッセージを送信" onclick="sendMessage()">
     </form>
+
+    <p id="github-link">
+        GitHub: <span id="github-url"><a href="https://github.com/uu5007mp4/Discord-Webhook-" target="_blank">https://github.com/uu5007mp4/Discord-Webhook-</a></span>
+    </p>
 
     <script>
         function sendMessage() {
@@ -123,13 +139,18 @@
 
             fetch(webhookURL, {
                 method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
                 body: JSON.stringify(payload),
             })
             .then(response => {
                 if (response.ok) {
                     alert('メッセージが送信されました。');
                 } else {
-                    alert('メッセージの送信に失敗しました。');
+                    response.text().then(errorMessage => {
+                        alert('メッセージの送信に失敗しました。エラー: ' + errorMessage);
+                    });
                 }
             })
             .catch(error => {
