@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Discord Webhook 送信フォーム</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #webhook-form {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 60px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background: linear-gradient(45deg, red, orange, yellow, green, blue, violet);
+            background-size: 400% 400%;
+            animation: rainbowBackground 8s linear infinite;
+        }
+
+        @keyframes rainbowBackground {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="url"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            height: 300px;
+        }
+
+        textarea {
+            order: 1;
+        }
+
+        input[type="file"] {
+            margin-top: 5px;
+        }
+
+        input[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Discord Webhook 送信フォーム</h1>
+    <form id="webhook-form">
+        <label for="webhook-url">Webhook URL：</label>
+        <input type="text" id="webhook-url" name="webhook-url" placeholder="Discord Webhook URL" required>
+
+        <label for="username">ユーザー名：</label>
+        <input type="text" id="username" name="username" placeholder="あなたのユーザー名">
+
+        <label for="image-file">画像をアップロード：</label>
+        <input type="file" id="image-file" name="image-file">
+        <p>または</p>
+        <label for="image-url">画像のURL：</label>
+        <input type="url" id="image-url" name="image-url" placeholder="画像のURL">
+
+        <label for="message">メッセージ：</label>
+        <textarea id="message" name="message" placeholder="メッセージ" required></textarea>
+
+        <input type="button" value="メッセージを送信" onclick="sendMessage()">
+    </form>
+
+    <script>
+        function sendMessage() {
+            const webhookURL = document.getElementById('webhook-url').value;
+            const username = document.getElementById('username').value;
+            const message = document.getElementById('message').value;
+
+            const payload = {
+                username: username,
+                content: message,
+            };
+
+            fetch(webhookURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('メッセージが送信されました。');
+                } else {
+                    alert('メッセージの送信に失敗しました。');
+                }
+            })
+            .catch(error => {
+                alert('エラーが発生しました: ' + error.message);
+            });
+        }
+    </script>
+</body>
+</html>
