@@ -80,14 +80,14 @@
 
         #github-link {
             font-size: 12px;
-            color: black; /* リンクのテキストカラーを黒に変更 */
-            text-decoration: none; /* 下線を削除 */
+            color: black;
+            text-decoration: none;
             margin-top: 10px;
         }
 
         #github-url {
-            color: #007bff; /* リンクのテキストカラーを青に変更 */
-            text-decoration: underline; /* 下線を追加 */
+            color: #007bff;
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -100,11 +100,9 @@
         <label for="username">ユーザー名：</label>
         <input type="text" id="username" name="username" placeholder="あなたのユーザー名">
 
-        <label for "image-file">画像をアップロード：</label>
-        <input type="file" id="image-file" name="image-file">
-
-        <label for="image-url">または画像のURL：</label>
-        <input type="url" id="image-url" name="image-url" placeholder="画像のURL">
+        <!-- ファイルのアップロード用のフィールド -->
+        <label for="file-upload">ファイルをアップロード：</label>
+        <input type="file" id="file-upload" name="file-upload">
 
         <label for="message">メッセージ：</label>
         <textarea id="message" name="message" placeholder="メッセージ" required></textarea>
@@ -121,28 +119,19 @@
             const webhookURL = document.getElementById('webhook-url').value;
             const username = document.getElementById('username').value;
             const message = document.getElementById('message').value;
-            const imageUrl = document.getElementById('image-url').value;
-            const imageFile = document.getElementById('image-file').files[0];
+            const fileUpload = document.getElementById('file-upload').files[0];
 
-            const payload = {
-                username: username,
-                content: message,
-            };
+            const payload = new FormData();
+            payload.append('username', username);
+            payload.append('content', message);
 
-            if (imageFile) {
-                const formData = new FormData();
-                formData.append('file', imageFile);
-                payload.file = formData;
-            } else if (imageUrl) {
-                payload.content += `\n${imageUrl}`;
+            if (fileUpload) {
+                payload.append('file', fileUpload);
             }
 
             fetch(webhookURL, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
+                body: payload,
             })
             .then(response => {
                 if (response.ok) {
