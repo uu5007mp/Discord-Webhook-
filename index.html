@@ -90,8 +90,8 @@
 
         <label for="image-file">画像をアップロード：</label>
         <input type="file" id="image-file" name="image-file">
-        <p>または</p>
-        <label for="image-url">画像のURL：</label>
+
+        <label for="image-url">または画像のURL：</label>
         <input type="url" id="image-url" name="image-url" placeholder="画像のURL">
 
         <label for="message">メッセージ：</label>
@@ -105,17 +105,24 @@
             const webhookURL = document.getElementById('webhook-url').value;
             const username = document.getElementById('username').value;
             const message = document.getElementById('message').value;
+            const imageUrl = document.getElementById('image-url').value;
+            const imageFile = document.getElementById('image-file').files[0];
 
             const payload = {
                 username: username,
                 content: message,
             };
 
+            if (imageFile) {
+                const formData = new FormData();
+                formData.append('file', imageFile);
+                payload.file = formData;
+            } else if (imageUrl) {
+                payload.content += `\n${imageUrl}`;
+            }
+
             fetch(webhookURL, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
                 body: JSON.stringify(payload),
             })
             .then(response => {
