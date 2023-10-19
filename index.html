@@ -1,11 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Discord Webhook 送信フォーム</title>
+    <title>Webhook送信フォーム</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500&display=swap" rel="stylesheet">
     <style>
-   body {
-            font-family: Arial, sans-serif;
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
             background-color: #f0f0f0;
         }
 
@@ -42,12 +46,33 @@
         }
 
         input[type="text"],
-        input[type="url"] {
+        select {
             width: 100%;
             padding: 10px;
             margin-bottom: 15px;
             border: 1px solid #ccc;
             border-radius: 3px;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            cursor: pointer;
+            background: #007bff;
+            color: #fff;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .file-input-label:hover {
+            background: #0056b3;
+        }
+
+        .file-input {
+            display: none;
         }
 
         textarea {
@@ -58,10 +83,6 @@
             height: 200px;
         }
 
-        input[type="file"] {
-            margin-top: 5px;
-        }
-
         input[type="submit"] {
             background-color: #007bff;
             color: #fff;
@@ -69,6 +90,7 @@
             border: none;
             border-radius: 3px;
             cursor: pointer;
+            transition: background-color 0.3s;
         }
 
         input[type="submit"]:hover {
@@ -78,36 +100,60 @@
         #github-link {
             text-align: center;
             font-size: 12px;
-            color: #007bff;
-            text-decoration: underline;
+            color: #000;
+            text-decoration: none;
             margin-top: 10px;
         }
 
-        #github-url {
-            color: #007bff;
-            text-decoration: none;
+        .choice-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .choice-label {
+            flex: 2;
+        }
+
+        .choice-select {
+            flex: 3;
+        }
+
+        .choice-select select {
+            padding: 5px;
+            font-size: 12px;
+            width: 100%;
         }
     </style>
 </head>
 <body>
     <h1>Discord Webhook 送信フォーム</h1>
     <form id="webhook-form">
-        <label for="webhook-url">Webhook URL：</label>
-        <input type="text" id="webhook-url" name="webhook-url" placeholder="Discord Webhook URL" required>
+        <label for="webhook-url">Webhook URL</label>
+        <input type="text" id="webhook-url" name="webhook-url" placeholder="Webhook URL" required></input>
 
-        <label for="username">ユーザー名：</label>
-        <input type="text" id="username" name="username" placeholder="あなたのユーザー名">
+        <label for="username">ユーザー名</label>
+        <input type="text" id="username" name="username" placeholder="あなたのユーザー名" required></input>
 
-        <label for="avatar-url">アイコンの画像URL：</label>
-        <input type="url" id="avatar-url" name="avatar-url" placeholder="アイコンのURL">
+        <div id="avatar-url-input">
+            <label for="avatar-url">アイコン指定</label>
+            <input type="text" id="avatar-url" name="avatar-url" placeholder="アイコンのURL"></input>
+        </div>
 
-        <label for="file-upload">ファイルをアップロード：</label>
-        <input type="file" id="file-upload" name="file-upload">
+        <div id="message-file-input">
+            <label for="message-file-upload">ファイルアップロード</label>
+            <label for="message-file-upload" class="file-input-label">ファイルをアップロード</label>
+            <input type="file" id="message-file-upload" name="message-file-upload" class="file-input"></input>
+        </div>
 
-        <label for="message">メッセージ：</label>
+        <label for="message">メッセージ</label>
         <textarea id="message" name="message" placeholder="メッセージ" required></textarea>
 
-        <input type="button" value="メッセージを送信" onclick="sendMessage()">
+        <div class="agree-container">
+            <input type="checkbox" id="agree" name="agree" required></input>
+            <a href="kiyaku.html" target="_blank">規約に同意</a>
+        </div>
+
+        <input type="submit" value="メッセージを送信"></input>
     </form>
 
     <p id="github-link">
@@ -115,23 +161,38 @@
     </p>
 
     <script>
-        function sendMessage() {
+        document.getElementById('webhook-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
             const webhookURL = document.getElementById('webhook-url').value;
+
+            const agreeCheckbox = document.getElementById('agree');
+            if (!agreeCheckbox.checked) {
+                alert('規約に同意する必要があります。');
+                return;
+            }
+
+            sendMessage(webhookURL);
+        });
+
+        function sendMessage(webhookURL) {
             const username = document.getElementById('username').value;
-            const message = document.getElementById('message').value;
-            const avatarURL = document.getElementById('avatar-url').value;
-            const fileUpload = document.getElementById('file-upload').files[0];
+            let message = document.getElementById('message').value;
+            const avatarUrl = document.getElementById('avatar-url').value;
+            const messageFile = document.getElementById('message-file-upload').files[0];
+
+            message = message.replace(/@/g, '');
 
             const payload = new FormData();
             payload.append('username', username);
             payload.append('content', message);
 
-            if (avatarURL) {
-                payload.append('avatar_url', avatarURL);
+            if (avatarUrl) {
+                payload.append('avatar_url', avatarUrl);
             }
 
-            if (fileUpload) {
-                payload.append('file', fileUpload);
+            if (messageFile) {
+                payload.append('file', messageFile);
             }
 
             fetch(webhookURL, {
