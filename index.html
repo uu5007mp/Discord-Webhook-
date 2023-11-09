@@ -161,57 +161,50 @@
     </p>
 
     <script>
-        document.getElementById('webhook-form').addEventListener('submit', function (e) {
-            e.preventDefault();
+document.getElementById('webhook-form').addEventListener('submit', function (e) {
+    e.preventDefault();
 
-            const webhookURL = document.getElementById('webhook-url').value;
+    const webhookURL = document.getElementById('webhook-url').value;
+    sendMessage(webhookURL);
+});
 
-            const agreeCheckbox = document.getElementById('agree');
-            if (!agreeCheckbox.checked) {
-                alert('規約に同意する必要があります。');
-                return;
-            }
+function sendMessage(webhookURL) {
+    const username = document.getElementById('username').value;
+    let message = document.getElementById('message').value;
+    const avatarUrl = document.getElementById('avatar-url').value;
+    const messageFile = document.getElementById('message-file-upload').files[0];
 
-            sendMessage(webhookURL);
-        });
+    message = message.replace(/@/g, '');
 
-        function sendMessage(webhookURL) {
-            const username = document.getElementById('username').value;
-            let message = document.getElementById('message').value;
-            const avatarUrl = document.getElementById('avatar-url').value;
-            const messageFile = document.getElementById('message-file-upload').files[0];
+    const payload = new FormData();
+    payload.append('username', username);
+    payload.append('content', message);
 
-            message = message.replace(/@/g, '');
+    if (avatarUrl) {
+        payload.append('avatar_url', avatarUrl);
+    }
 
-            const payload = new FormData();
-            payload.append('username', username);
-            payload.append('content', message);
+    if (messageFile) {
+        payload.append('file', messageFile);
+    }
 
-            if (avatarUrl) {
-                payload.append('avatar_url', avatarUrl);
-            }
-
-            if (messageFile) {
-                payload.append('file', messageFile);
-            }
-
-            fetch(webhookURL, {
-                method: 'POST',
-                body: payload,
-            })
-            .then(response => {
-                if (response.ok) {
-                    alert('メッセージが送信されました。');
-                } else {
-                    response.text().then(errorMessage => {
-                        alert('メッセージの送信に失敗しました。エラー: ' + errorMessage);
-                    });
-                }
-            })
-            .catch(error => {
-                alert('エラーが発生しました: ' + error.message);
+    fetch(webhookURL, {
+        method: 'POST',
+        body: payload,
+    })
+    .then(response => {
+        if (response.ok) {
+            alert('メッセージが送信されました。');
+        } else {
+            response.text().then(errorMessage => {
+                alert('メッセージの送信に失敗しました。エラー: ' + errorMessage);
             });
         }
+    })
+    .catch(error => {
+        alert('エラーが発生しました: ' + error.message);
+    });
+}
     </script>
 </body>
 </html>
